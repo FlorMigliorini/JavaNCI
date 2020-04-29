@@ -6,7 +6,7 @@ public class StockApp {
     String Category ;
     String StockDate ;
     String Qtity ;
-    int StockCode;
+    int StockID;
 
     //Constructor
 
@@ -62,12 +62,12 @@ public class StockApp {
         this.Qtity = Qtity;
     }
 
-    public int getStockCode() {
-        return StockCode;
+    public int getStockID() {
+        return StockID;
     }
 
-    public void setStockCode(int StockCode) {
-        this.StockCode = StockCode;
+    public void setStockCode(int StockID) {
+        this.StockID = StockID;
     }
     
 

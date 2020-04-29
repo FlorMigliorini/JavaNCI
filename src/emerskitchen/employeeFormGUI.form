@@ -407,7 +407,7 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Component class="javax.swing.JTable" name="jTable2">
+                <Component class="javax.swing.JTable" name="jTableEmp">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="c9" green="bb" red="a2" type="rgb"/>
@@ -446,7 +446,7 @@
                     </Property>
                   </Properties>
                   <BindingProperties>
-                    <BindingProperty name="elements" source="employeeList" target="jTable2" targetPath="elements" updateStrategy="0" immediately="true">
+                    <BindingProperty name="elements" source="employeeList" target="jTableEmp" targetPath="elements" updateStrategy="0" immediately="true">
                       <Subbinding sourcePath="${id}">
                         <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="Integer.class"/>
                       </Subbinding>
@@ -465,7 +465,7 @@
                     </BindingProperty>
                   </BindingProperties>
                   <Events>
-                    <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jTable2MouseClicked"/>
+                    <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jTableEmpMouseClicked"/>
                   </Events>
                 </Component>
               </SubComponents>

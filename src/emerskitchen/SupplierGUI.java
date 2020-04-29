@@ -9,20 +9,49 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 public class SupplierGUI extends javax.swing.JFrame {
 
-    Connection con = null;
+    Connection con;
     PreparedStatement ps = null;
     ResultSet rs = null;
     DefaultTableModel model;
     
+    String DRIVER = "com.mysql.cj.jdbc.Driver";
+    String USER = "root";
+    String PASSWORD = " ";
+    String URL = "jdbc:mysql://localhost:3308/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow";
+    
     public SupplierGUI() {
         initComponents();
         this.setLocationRelativeTo(null); // center form in the screen
+        con = databaseConnection();
         populateJTable();//populateing jTable
+    }
+    
+    
+    public Connection databaseConnection() {
+        Connection con;
+
+        try {
+            //load driver
+            Class.forName(DRIVER);
+            JOptionPane.showMessageDialog(null, "Loaded");
+            //connect to db
+            con = DriverManager.getConnection(URL, USER, PASSWORD);
+            JOptionPane.showMessageDialog(null, "Connected");
+            return con;
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(StockGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
     
      //store db results in arraylist
@@ -46,7 +75,7 @@ public class SupplierGUI extends javax.swing.JFrame {
                 supApp.setPhone(rs.getString("phone"));
                 supApp.setContact(rs.getString("contact"));
                 supApp.setCategory(rs.getString("category"));
-                supApp.setOtherDetails(rs.getString("othersupplierdetails"));
+                supApp.setOtherDetails(rs.getString("otherdetails"));
                 
 
             }
@@ -444,11 +473,14 @@ public class SupplierGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddActionPerformed
+        Connection con = null;
+        
         try {
             //SQL
             String sql = "INSERT INTO suppliers (sname, email, phone, site, contact_name, category, other_details) VALUE (?, ?, ?, ?, ?, ?, ?)";
             //Connection
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+//            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+            
             //statement
             ps = con.prepareStatement(sql);
             ps.setString(1, jTextFieldName.getText());
@@ -476,7 +508,7 @@ public class SupplierGUI extends javax.swing.JFrame {
 
     private void jButtonUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUploadActionPerformed
         try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+            con = DriverManager.getConnection("jdbc:mysql://localhost/emers_db", "root", "");
             int row = jTableSup.getSelectedRow(); // to get selected row
             String tbclick = (jTableSup.getModel().getValueAt(row, 0).toString()); // to get jTable1 model
             String sql = "UPDATE suppliers SET sname=?, email=?, phone=?, site=?, contact_name=?, category=?, other_details=? WHERE sid=" + tbclick + "";
@@ -507,7 +539,7 @@ public class SupplierGUI extends javax.swing.JFrame {
 
         try {
             String sql = "DELETE FROM suppliers WHERE sid=?";
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+            
             ps = con.prepareStatement(sql);
             ps.setString(0, supplier_code.getText());
             ps.executeUpdate();
@@ -533,7 +565,7 @@ public class SupplierGUI extends javax.swing.JFrame {
 
     private void jTableSupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableSupMouseClicked
         try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+            
             int row = jTableSup.getSelectedRow(); // to get selected row
             String tbclick = (jTableSup.getModel().getValueAt(row, 0).toString()); // to get jTable1 model
             String sql = "SELECT * FROM suppliers WHERE sid=" + tbclick + "";

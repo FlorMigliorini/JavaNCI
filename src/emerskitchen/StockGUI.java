@@ -21,7 +21,7 @@ public class StockGUI extends javax.swing.JFrame {
     String DRIVER = "com.mysql.cj.jdbc.Driver";
     String USER = "root";
     String PASSWORD = " ";
-    String URL = "jdbc:mysql://localhost:3306/emers_db";
+    String URL = "jdbc:mysql://localhost:3308/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow";
     //had problems and the db was asking for timezone
     String timeZone = "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
@@ -30,7 +30,7 @@ public class StockGUI extends javax.swing.JFrame {
     String Category = "";
     String StockDate = "";
     String Qtity = "";
-    String StockCode;
+    String StockID;
     Connection con;
     DefaultTableModel model;
 
@@ -50,7 +50,7 @@ public class StockGUI extends javax.swing.JFrame {
             Class.forName(DRIVER);
             JOptionPane.showMessageDialog(null, "Loaded");
             //connect to db
-            con = DriverManager.getConnection(URL + timeZone, USER, PASSWORD);
+            con = DriverManager.getConnection(URL, USER, PASSWORD);
             JOptionPane.showMessageDialog(null, "Connected");
             return con;
         } catch (SQLException e) {
@@ -66,7 +66,7 @@ public class StockGUI extends javax.swing.JFrame {
     public ArrayList<StockApp> stockList() {
         ArrayList<StockApp> stockList = new ArrayList<StockApp>();
         //SQL
-        String sql = "SELECT * FROM stock.emers_db";
+        String sql = "SELECT * FROM emers_db.stock";
         Statement st;
         ResultSet rs;
         StockApp stockApp = new StockApp();
@@ -77,12 +77,14 @@ public class StockGUI extends javax.swing.JFrame {
             //loop the results
             while (rs.next()) {
                 //populate stockapp setters
-                stockApp.setStockCode(rs.getInt("stid"));
+                stockApp.setProdCode(rs.getString("stid"));
+                stockApp.setStockCode(rs.getInt("stcode"));                
                 stockApp.setProdName(rs.getString("prodname"));
                 stockApp.setCategory(rs.getString("category"));
-                stockApp.setQtity(rs.getString("quantity_in_stock"));
                 stockApp.setStockDate(rs.getString("date"));
-                stockApp.setProdCode(rs.getString(""));
+                stockApp.setQtity(rs.getString("quantity_in_stock"));
+                
+                
 
             }
 
@@ -101,12 +103,13 @@ public class StockGUI extends javax.swing.JFrame {
         Object[] row = new Object[6];
         //loop through arraylist to populate jTable
         for (int i = 0; i < dataArray.size(); i++) {
-            row[0] = dataArray.get(i).getProdCode();
-            row[1] = dataArray.get(i).getProdName();
-            row[2] = dataArray.get(i).getCategory();
-            row[3] = dataArray.get(i).getStockDate();
-            row[4] = dataArray.get(i).getQtity();
-            row[5] = dataArray.get(i).getStockCode();
+            row[0] = dataArray.get(i).getStockID();
+            row[1] = dataArray.get(i).getProdCode();            
+            row[2] = dataArray.get(i).getProdName();
+            row[3] = dataArray.get(i).getCategory();
+            row[4] = dataArray.get(i).getStockDate();
+            row[5] = dataArray.get(i).getQtity();
+            
 
             model.addRow(row);
         }
@@ -163,7 +166,7 @@ public class StockGUI extends javax.swing.JFrame {
 
         jLabel2.setBackground(new java.awt.Color(162, 187, 201));
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel2.setText("Stock code:");
+        jLabel2.setText("prod Code:");
 
         jLabel5.setBackground(new java.awt.Color(162, 187, 201));
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -318,7 +321,11 @@ public class StockGUI extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jTextFieldCode, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextFieldStockcd, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jTextFieldName, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -327,20 +334,20 @@ public class StockGUI extends javax.swing.JFrame {
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(0, 0, Short.MAX_VALUE)
                                 .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(23, 23, 23)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(28, 28, 28)
-                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(20, 20, 20))
+                                .addGap(157, 157, 157))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jComboBoxCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(dateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(Date, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(100, Short.MAX_VALUE))))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(Date, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(32, 32, 32)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(qtity, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(25, 25, 25)
                         .addComponent(jButtonAdd)
@@ -351,13 +358,9 @@ public class StockGUI extends javax.swing.JFrame {
                         .addGap(8, 8, 8)
                         .addComponent(jButtonClean)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButtonSave)
-                            .addComponent(qtity, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButtonExit, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextFieldStockcd, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jButtonSave)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                        .addComponent(jButtonExit, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(19, 19, 19))))
         );
 
@@ -366,15 +369,6 @@ public class StockGUI extends javax.swing.JFrame {
         jTableProduct.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
 
         org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, productList, jTableProduct);
-        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${prodCode}"));
-        columnBinding.setColumnName("Prod Code");
-        columnBinding.setColumnClass(Integer.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${prodName}"));
-        columnBinding.setColumnName("Prod Name");
-        columnBinding.setColumnClass(String.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${supId}"));
-        columnBinding.setColumnName("Sup Id");
-        columnBinding.setColumnClass(Integer.class);
         bindingGroup.addBinding(jTableBinding);
         jTableBinding.bind();
         jScrollPane2.setViewportView(jTableProduct);
@@ -387,7 +381,7 @@ public class StockGUI extends javax.swing.JFrame {
 
             },
             new String [] {
-                "ID", "Product", "Category", "Date", "Quantity", "Stock code"
+                "ID", "Stock code", "Product", "Category", "Date", "Quantity"
             }
         ));
         jTableStock.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -414,7 +408,7 @@ public class StockGUI extends javax.swing.JFrame {
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE))
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -432,25 +426,26 @@ public class StockGUI extends javax.swing.JFrame {
         Category = jComboBoxCategory.getSelectedItem().toString();
         StockDate = Date.getText();
         Qtity = Date.getText();
-        StockCode = jTextFieldStockcd.getText();
+        StockID = jTextFieldStockcd.getText();
 //        StockCode = Integer.parseInt(jTextFieldStockcd.getText());
 
-        if (Qtity.isEmpty()) {
+        if (ProdCode.isEmpty() || ProdName.isEmpty() || Category.isEmpty() || StockDate.isEmpty() || Qtity.isEmpty() || StockID.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Check if all fields are filled");
         } else {
             try {
                 //SQL
-                String sql = "INSERT INTO stock (stock_name, stock_price_gross, stock_price_shop, delivery_date, prod_qtity, sup_id) VALUE (?, ?, ?, ?, ?, ?)";
+                String sql = "INSERT INTO stock (prodcode, prodname, category, stock_taking_date, quantity_in_stock) VALUE (?, ?, ?, ?, ?)";
                 //Connection
 //                con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
                 //statement
                 PreparedStatement ps = this.con.prepareStatement(sql);
-                ps.setString(1, ProdCode);
-                ps.setString(2, ProdName);
-                ps.setString(3, Category);
-                ps.setString(4, StockDate);
-                ps.setString(5, Qtity);
-                ps.setString(6, StockCode);
+                ps.setString(1, StockID);
+                ps.setString(2, ProdCode);                
+                ps.setString(3, ProdName);
+                ps.setString(4, Category);
+                ps.setString(5, StockDate);
+                ps.setString(6, Qtity);
+                
 
                 int dataInserted = ps.executeUpdate();
                 if (dataInserted > 0) {
@@ -460,7 +455,7 @@ public class StockGUI extends javax.swing.JFrame {
                 }
 
             } catch (SQLException e) {
-                e.printStackTrace();//to handle exceptions and errors.
+                e.getMessage();//to handle exceptions and errors.
             }
 
         }
@@ -474,24 +469,25 @@ public class StockGUI extends javax.swing.JFrame {
         Category = jComboBoxCategory.getSelectedItem().toString();
         StockDate = Date.getText();
         Qtity = Date.getText();
-        StockCode = jTextFieldStockcd.getText();
+        StockID = jTextFieldStockcd.getText();
 
         if (Qtity.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Check if all fields are filled");
         } else {
             try {
                 //SQL
-                String sql = "UPDATE stock SET stock_name=? stock_code=? stock_taking_date=?, category=?, qtity=? WHERE stock_id=?";
+                String sql = "UPDATE stock SET prodcode=?, prodname=?, category=?, stock_taking_date=?, quantity_in_stock=? WHERE stid=?";
                 //Connection
-                con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+//                con = DriverManager.getConnection("jdbc:mysql://localhost:3308/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
                 //statement
                 PreparedStatement ps = this.con.prepareStatement(sql);
-                ps.setString(1, ProdCode);
+//                ps.setInt(1, Integer.parseInt(StockID));
+                ps.setString(1, ProdCode);                
                 ps.setString(2, ProdName);
                 ps.setString(3, Category);
                 ps.setString(4, StockDate);
                 ps.setString(5, Qtity);
-                ps.setInt(6, Integer.parseInt(StockCode));
+                
                 
                 int dataInserted = ps.executeUpdate();
                 if (dataInserted > 0) {
@@ -502,7 +498,7 @@ public class StockGUI extends javax.swing.JFrame {
                 }
 
             } catch (SQLException e) {
-                e.printStackTrace();//to handle exceptions and errors.
+                e.getMessage();//to handle exceptions and errors.
             }
             
             
@@ -518,7 +514,7 @@ public class StockGUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "ID is empty");
         } else {
             //SQL
-            String sql = "DELETE FROM stock WHERE stock_code = ?";
+            String sql = "DELETE FROM stock WHERE stid= ?";
 
             try {
                 conn = this.con;
@@ -533,7 +529,7 @@ public class StockGUI extends javax.swing.JFrame {
                     populateJTable();
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
+                e.getMessage();
             } finally { //to close connection
                 try {
                     if (ps != null) {
@@ -623,6 +619,21 @@ public class StockGUI extends javax.swing.JFrame {
         jComboBoxCategory.setSelectedIndex(0);
 
     }
+    
+    private void selectRow(int counter) {
+
+        jTextFieldCode.setText(stockList().get(counter).getProdCode());
+        jTextFieldName.setText(stockList().get(counter).getProdName());
+
+        String category = stockList().get(counter).getCategory();
+        for (int c = 0; c < jComboBoxCategory.getItemCount(); c++) {
+            jComboBoxCategory.setSelectedIndex(c);
+        }
+
+        Date.setText(stockList().get(counter).getStockDate());
+        qtity.setText(stockList().get(counter).getQtity());
+        jTextFieldStockcd.setText(Integer.toString(stockList().get(counter).getStockID()));
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField Date;
@@ -661,20 +672,4 @@ public class StockGUI extends javax.swing.JFrame {
     private javax.persistence.Query stockQuery1;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
-
-    private void selectRow(int counter) {
-
-        jTextFieldCode.setText(stockList().get(counter).getProdCode());
-        jTextFieldName.setText(stockList().get(counter).getProdName());
-
-        String category = stockList().get(counter).getCategory();
-        for (int c = 0; c < jComboBoxCategory.getItemCount(); c++) {
-            jComboBoxCategory.setSelectedIndex(c);
-        }
-
-        Date.setText(stockList().get(counter).getStockDate());
-        qtity.setText(stockList().get(counter).getQtity());
-        jTextFieldStockcd.setText(Integer.toString(stockList().get(counter).getStockCode()));
-    }
-
 }

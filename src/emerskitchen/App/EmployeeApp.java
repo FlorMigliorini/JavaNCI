@@ -5,11 +5,11 @@ public class EmployeeApp {
     int id;
     String name, email, phone, position;
 
-    public EmployeeApp(int id, String name, String position) {
-        this.id = id;
-        this.name = name;
-        this.position = position;
-    }
+//    public EmployeeApp(int id, String name, String position) {
+//        this.id = id;
+//        this.name = name;
+//        this.position = position;
+//    }
 
     public int getId() {
         return id;

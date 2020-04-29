@@ -1,12 +1,18 @@
 package emerskitchen;
 
+import emerskitchen.App.EmployeeApp;
 import java.awt.HeadlessException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -14,16 +20,97 @@ import javax.swing.JOptionPane;
  */
 public class employeeFormGUI extends javax.swing.JFrame {
 
-   public static int id = 0;
-    Connection con = null;
+    Connection con;
     PreparedStatement ps = null;
     ResultSet rs = null;
-    
+    DefaultTableModel model;
+
+    String DRIVER = "com.mysql.cj.jdbc.Driver";
+    String USER = "root";
+    String PASSWORD = " ";
+    String URL = "jdbc:mysql://localhost:3308/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow";
+    String eid = "";
+    String ename = "";
+    String email = "";
+    String phone = "";
+    String position = "";
+
     public employeeFormGUI() {
         initComponents();
+        this.setLocationRelativeTo(null); // center form in the screen
+        con = databaseConnection();
+        populateJTable();//populateing jTable
+
     }
 
-   
+    public Connection databaseConnection() {
+        Connection con;
+
+        try {
+            //load driver
+            Class.forName(DRIVER);
+            JOptionPane.showMessageDialog(null, "Loaded");
+            //connect to db
+            con = DriverManager.getConnection(URL, USER, PASSWORD);
+            JOptionPane.showMessageDialog(null, "Connected");
+            return con;
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(StockGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    //store db results in arraylist
+    public ArrayList<EmployeeApp> employeeList() {
+        ArrayList<EmployeeApp> employeeList = new ArrayList<EmployeeApp>();
+        //SQL
+        String sql = "SELECT * FROM emers_db.employee";
+        Statement st;
+        ResultSet rs;
+        EmployeeApp stockApp = new EmployeeApp();
+        try {
+
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            //loop the results
+            while (rs.next()) {
+                //populate stockapp setters
+                stockApp.setId(rs.getInt("eid"));
+                stockApp.setName(rs.getString("ename"));
+                stockApp.setEmail(rs.getString("email"));
+                stockApp.setPhone(rs.getString("phone"));
+                stockApp.setPosition(rs.getString("position"));
+
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return employeeList;
+    }
+
+    //populate jTable from db
+    public void populateJTable() {
+        ArrayList<EmployeeApp> dataArray = employeeList();
+        model = (DefaultTableModel) jTableEmp.getModel();
+
+        Object[] row = new Object[5];
+        //loop through arraylist to populate jTable
+        for (int i = 0; i < dataArray.size(); i++) {
+            row[0] = dataArray.get(i).getId();
+            row[1] = dataArray.get(i).getName();
+            row[2] = dataArray.get(i).getEmail();
+            row[3] = dataArray.get(i).getPhone();
+            row[4] = dataArray.get(i).getPosition();
+
+            model.addRow(row);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -52,7 +139,7 @@ public class employeeFormGUI extends javax.swing.JFrame {
         jButtonClean = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        jTableEmp = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -137,9 +224,9 @@ public class employeeFormGUI extends javax.swing.JFrame {
         jPanel2.setBackground(new java.awt.Color(162, 187, 201));
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Employee", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12), new java.awt.Color(255, 255, 255))); // NOI18N
 
-        jTable2.setBackground(new java.awt.Color(162, 187, 201));
+        jTableEmp.setBackground(new java.awt.Color(162, 187, 201));
 
-        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, employeeList, jTable2);
+        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, employeeList, jTableEmp);
         org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${id}"));
         columnBinding.setColumnName("Id");
         columnBinding.setColumnClass(Integer.class);
@@ -157,12 +244,12 @@ public class employeeFormGUI extends javax.swing.JFrame {
         columnBinding.setColumnClass(String.class);
         bindingGroup.addBinding(jTableBinding);
         jTableBinding.bind();
-        jTable2.addMouseListener(new java.awt.event.MouseAdapter() {
+        jTableEmp.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jTable2MouseClicked(evt);
+                jTableEmpMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(jTable2);
+        jScrollPane1.setViewportView(jTableEmp);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -296,10 +383,10 @@ public class employeeFormGUI extends javax.swing.JFrame {
             //SQL
             String sql = "INSERT INTO employee (ename, email, phone, position) VALUES (?, ?, ?, ?)";
             //Connection
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+//            con = DriverManager.getConnection("jdbc:mysql://localhost/emers_db", "root", "");
             //statement
             ps = con.prepareStatement(sql);
-           
+
             ps.setString(1, jTextFieldName.getText());
             ps.setString(2, jTextFieldEmail.getText());
             ps.setString(3, jTextFieldPhone.getText());
@@ -307,14 +394,11 @@ public class employeeFormGUI extends javax.swing.JFrame {
             ps.setString(4, option);
             ps.executeUpdate();//to do the insert
 
-            id++;
             con.close();
+            clearFields();
+            populateJTable();//refresh jTable after add
+
             JOptionPane.showMessageDialog(this, "Data Inserted Successfully");
-            //Limpeza dos campos de entrada
-            jTextFieldId.setText("");
-            jTextFieldName.setText("");
-            jTextFieldEmail.setText("");
-            jTextFieldPhone.setText("");
 
         } catch (SQLException | HeadlessException ex) {
             JOptionPane.showMessageDialog(null, ex);
@@ -325,12 +409,12 @@ public class employeeFormGUI extends javax.swing.JFrame {
 
     private void jButtonUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUploadActionPerformed
         try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
-            int row = jTable2.getSelectedRow(); // to get selected row
-            String tbclick = (jTable2.getModel().getValueAt(row, 0).toString()); // to get jTable1 model
+//            con = DriverManager.getConnection("jdbc:mysql://localhost/emers_db", "root", "");
+            int row = jTableEmp.getSelectedRow(); // to get selected row
+            String tbclick = (jTableEmp.getModel().getValueAt(row, 0).toString()); // to get jTable1 model
             String sql = "UPDATE employee SET ename=?,email=?, phone=?, position=? WHERE id=" + tbclick + "";
             ps = con.prepareStatement(sql);
-            
+
             ps.setString(1, jTextFieldName.getText());
             ps.setString(2, jTextFieldEmail.getText());
             ps.setString(3, jTextFieldPhone.getText());
@@ -340,13 +424,10 @@ public class employeeFormGUI extends javax.swing.JFrame {
             ps.executeUpdate();
 
             con.close();
-            JOptionPane.showMessageDialog(null, "Updated Successfully");
 
-            //to clean jTextField
-            jTextFieldId.setText("");
-            jTextFieldName.setText("");
-            jTextFieldEmail.setText("");
-            jTextFieldPhone.setText("");
+            clearFields();
+            populateJTable();//refresh jTable after add
+            JOptionPane.showMessageDialog(null, "Updated Successfully");
 
         } catch (SQLException | HeadlessException ex) {
             JOptionPane.showMessageDialog(null, ex);
@@ -356,19 +437,16 @@ public class employeeFormGUI extends javax.swing.JFrame {
     private void jButtonRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRemoveActionPerformed
         try {
             String sql = "DELETE FROM employee WHERE id=?";
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+//            con = DriverManager.getConnection("jdbc:mysql://localhost/emers_db", "root", "");
             ps = con.prepareStatement(sql);
-            ps.setString(1,jTextFieldId.getText());
+            ps.setString(1, jTextFieldId.getText());
             ps.executeUpdate();
 
             con.close();
+            clearFields();
+            populateJTable();//refresh jTable after add
 
             JOptionPane.showMessageDialog(null, "Deleted Successfully");
-            jTextFieldId.setText("");
-            jTextFieldName.setText("");
-            jTextFieldEmail.setText("");
-            jTextFieldPhone.setText("");
-            jComboBoxType.setActionCommand("");
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, ex);
@@ -379,11 +457,11 @@ public class employeeFormGUI extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jButtonExitActionPerformed
 
-    private void jTable2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable2MouseClicked
+    private void jTableEmpMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableEmpMouseClicked
         try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
-            int row = jTable2.getSelectedRow(); // to get selected row
-            String tbclick = (jTable2.getModel().getValueAt(row, 0).toString()); // to get jTable1 model
+//            con = DriverManager.getConnection("jdbc:mysql://localhost/emers_db", "root", "");
+            int row = jTableEmp.getSelectedRow(); // to get selected row
+            String tbclick = (jTableEmp.getModel().getValueAt(row, 0).toString()); // to get jTable1 model
             String sql = "SELECT * FROM employee WHERE id=" + tbclick + "";
             ps = con.prepareStatement(sql);
             rs = ps.executeQuery();
@@ -395,23 +473,20 @@ public class employeeFormGUI extends javax.swing.JFrame {
                 String email = rs.getString("email");
                 jTextFieldEmail.setText(email);
                 String phone = rs.getString("phone");
-                jTextFieldPhone.setText(phone);             
+                jTextFieldPhone.setText(phone);
                 String option = rs.getString("position");
                 jComboBoxType.getSelectedItem().toString();
-                 
-                
+
             }
         } catch (SQLException | HeadlessException ex) {
             JOptionPane.showMessageDialog(null, ex);
         }
-    }//GEN-LAST:event_jTable2MouseClicked
+    }//GEN-LAST:event_jTableEmpMouseClicked
 
     private void jButtonCleanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCleanActionPerformed
         //Limpeza dos campos de entrada
-            jTextFieldId.setText("");
-            jTextFieldName.setText("");
-            jTextFieldEmail.setText("");
-            jTextFieldPhone.setText("");
+        clearFields();
+                  
     }//GEN-LAST:event_jButtonCleanActionPerformed
 
     /**
@@ -449,6 +524,13 @@ public class employeeFormGUI extends javax.swing.JFrame {
         });
     }
 
+    private void clearFields() {
+        jTextFieldId.setText("");
+        jTextFieldName.setText("");
+        jTextFieldEmail.setText("");
+        jTextFieldPhone.setText("");
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.persistence.EntityManager MoscowPUEntityManager;
     private java.util.List<emerskitchen.Employee> employeeList;
@@ -469,11 +551,12 @@ public class employeeFormGUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable2;
+    private javax.swing.JTable jTableEmp;
     private javax.swing.JTextField jTextFieldEmail;
     private javax.swing.JTextField jTextFieldId;
     private javax.swing.JTextField jTextFieldName;
     private javax.swing.JTextField jTextFieldPhone;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
+
 }

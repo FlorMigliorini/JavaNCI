@@ -30,7 +30,7 @@ public class OrderGUI extends javax.swing.JFrame {
     String DRIVER = "com.mysql.cj.jdbc.Driver";
     String USER = "root";
     String PASSWORD = " ";
-    String URL = "jdbc:mysql://localhost:3306/emers_db";
+    String URL = "jdbc:mysql://localhost:3308/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow";
     //had problems and the db was asking for timezone
     String timeZone = "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
@@ -39,12 +39,22 @@ public class OrderGUI extends javax.swing.JFrame {
     ResultSet rs = null;
     DefaultTableModel model;
 
-    String prod, qtity, category, order, orderedby, date = "";
-
+    String prod = "";
+    String qtity = "";
+    String category = "";
+    String order = "";
+    String orderedby = "";
+    String date = "";
+    
+    
+    
+    
+    
     public OrderGUI() {
         initComponents();
+        this.setLocationRelativeTo(null); // center form in the screen
         con = databaseConnection();
-
+        populateJTable();
     }
 
     public Connection databaseConnection() {
@@ -55,7 +65,7 @@ public class OrderGUI extends javax.swing.JFrame {
             Class.forName(DRIVER);
             JOptionPane.showMessageDialog(null, "Loaded");
             //connect to db
-            con = DriverManager.getConnection(URL + timeZone, USER, PASSWORD);
+            con = DriverManager.getConnection(URL, USER, PASSWORD);
             JOptionPane.showMessageDialog(null, "Connected");
             return con;
         } catch (SQLException e) {
@@ -71,7 +81,7 @@ public class OrderGUI extends javax.swing.JFrame {
     public ArrayList<StockApp> stockList() {
         ArrayList<StockApp> stockList = new ArrayList<StockApp>();
         //SQL
-        String sql = "SELECT * FROM emers_db";
+        String sql = "SELECT * FROM stock.emers_db";
         Statement st;
         ResultSet rs;
         StockApp stockApp = new StockApp();
@@ -82,12 +92,13 @@ public class OrderGUI extends javax.swing.JFrame {
             //loop the results
             while (rs.next()) {
                 //populate stockapp setters
-                stockApp.setStockCode(rs.getInt("stockCode"));
-                stockApp.setProdName(rs.getString("ProdName"));
-                stockApp.setCategory(rs.getString("category"));
-                stockApp.setQtity(rs.getString("qtity"));
-                stockApp.setStockDate(rs.getString("date"));
-                stockApp.setProdCode(rs.getString("id"));
+                stockApp.setStockCode(rs.getInt("stid"));
+                stockApp.setProdCode(rs.getString("stcode"));
+                stockApp.setProdName(rs.getString("prodname"));
+                stockApp.setCategory(rs.getString("category"));                
+                stockApp.setStockDate(rs.getString("stock_taking_date"));
+                stockApp.setQtity(rs.getString("quantity_in_stock"));
+                
 
             }
 
@@ -106,12 +117,12 @@ public class OrderGUI extends javax.swing.JFrame {
         Object[] row = new Object[6];
         //loop through arraylist to populate jTable
         for (int i = 0; i < dataArray.size(); i++) {
-            row[0] = dataArray.get(i).getProdCode();
-            row[1] = dataArray.get(i).getProdName();
-            row[2] = dataArray.get(i).getCategory();
-            row[3] = dataArray.get(i).getStockDate();
-            row[4] = dataArray.get(i).getQtity();
-            row[5] = dataArray.get(i).getStockCode();
+            row[0] = dataArray.get(i).getStockID();
+            row[1] = dataArray.get(i).getProdCode();            
+            row[2] = dataArray.get(i).getProdName();
+            row[3] = dataArray.get(i).getCategory();
+            row[4] = dataArray.get(i).getStockDate();
+            row[5] = dataArray.get(i).getQtity();
 
             model.addRow(row);
         }
@@ -532,19 +543,19 @@ public class OrderGUI extends javax.swing.JFrame {
         } else {
             try {
                 //SQL
-                String sql = "INSERT INTO order (prod, category, qtity) VALUE (?,?,?)";
+                String sql = "INSERT INTO orderto (date, ordby, prodname, category, qtity) VALUE (?,?,?, ?, ?)";
                 //Connection
-                con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+                con = DriverManager.getConnection("jdbc:mysql://localhost:3308/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
                 //statement
                 ps = this.con.prepareStatement(sql);
 
 //            ps.setInt(0,Integer.parseInt(jTextFieldProd.getText()));
-                ps.setString(1, order);
-                ps.setString(2, date);
-                ps.setString(3, orderedby);
-                ps.setString(4, prod);
-                ps.setString(5, category);
-                ps.setString(6, qtity);
+                
+                ps.setString(1, date);
+                ps.setString(2, orderedby);
+                ps.setString(3, prod);
+                ps.setString(4, category);
+                ps.setString(5, qtity);
 
                 int dataInserted = ps.executeUpdate();
                 if (dataInserted > 0) {

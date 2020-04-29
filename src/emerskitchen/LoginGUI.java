@@ -11,12 +11,37 @@ import javax.swing.JOptionPane;
 
 public class LoginGUI extends javax.swing.JFrame {
 
+    String DRIVER = "com.mysql.cj.jdbc.Driver";
+    String USER = "root";
+    String PASSWORD = " ";
+    String URL = "jdbc:mysql://localhost:3308/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow";
     Connection con;
     PreparedStatement ps;
 
     public LoginGUI() {
         initComponents();
         this.setLocationRelativeTo(null); // center form in the screen
+        con = databaseConnection();
+        
+    }
+    public Connection databaseConnection() {
+        Connection con;
+
+        try {
+            //load driver
+            Class.forName(DRIVER);
+            JOptionPane.showMessageDialog(null, "Loaded");
+            //connect to db
+            con = DriverManager.getConnection(URL, USER, PASSWORD);
+            JOptionPane.showMessageDialog(null, "Connected");
+            return con;
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(StockGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -158,7 +183,7 @@ public class LoginGUI extends javax.swing.JFrame {
     private void jButtonLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoginActionPerformed
 
         try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+            
             ps = con.prepareStatement("SELECT user_name, user_password FROM login WHERE user_name = ? AND user_password = ?");
             ps.setString(1, jTextFieldUser.getText());
             ps.setString(2, String.valueOf(jPasswordField1.getPassword()));
@@ -203,7 +228,7 @@ public class LoginGUI extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(LoginGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

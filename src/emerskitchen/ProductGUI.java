@@ -12,12 +12,18 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 public class ProductGUI extends javax.swing.JFrame {
 
+    String DRIVER = "com.mysql.cj.jdbc.Driver";
+    String USER = "root";
+    String PASSWORD = " ";
+    String URL = "jdbc:mysql://localhost:3308/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow";
     Connection con = null;
     PreparedStatement ps = null;
     ResultSet rs = null;
@@ -29,7 +35,28 @@ public class ProductGUI extends javax.swing.JFrame {
     public ProductGUI() {
         initComponents();
         this.setLocationRelativeTo(null); // center form in the screen
+        con = databaseConnection();
         populateJTable();
+    }
+    
+     public Connection databaseConnection() {
+        Connection con;
+
+        try {
+            //load driver
+            Class.forName(DRIVER);
+            JOptionPane.showMessageDialog(null, "Loaded");
+            //connect to db
+            con = DriverManager.getConnection(URL, USER, PASSWORD);
+            JOptionPane.showMessageDialog(null, "Connected");
+            return con;
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(StockGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     //store db results in arraylist
@@ -465,7 +492,7 @@ public class ProductGUI extends javax.swing.JFrame {
                 //SQL
                 String sql = "INSERT INTO product (prod_name, prod_price_gross, prod_price_shop, delivery_date, prod_qtity, sup_id) VALUE (?, ?, ?, ?, ?, ?)";
                 //Connection
-                con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+                
                 //statement
                 ps = con.prepareStatement(sql);
 
@@ -507,38 +534,38 @@ public class ProductGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonExitActionPerformed
 
     private void jTextFieldSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldSearchKeyReleased
-        try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
-            String sql = "SELECT prod_code, prod_name FROM product where prod_code=?, prod_name=?";
-
-            ps = con.prepareStatement(sql);
-
-            ps.setString(1, jTextFieldSearch.getText());
-
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                String add1 = rs.getString("prod_code");
-                jTextFieldCode.setText(add1);
-                String add2 = rs.getString("prod_name");
-                jTextProduct.setText(add2);
-                String add3 = rs.getString("prod_price_gross");
-                jTextFieldGross.setText(add3);
-                String add4 = rs.getString("prod_price_shop");
-                jTextFieldShop.setText(add4);
-                String add5 = rs.getString("delivery_date");
-                dateChooser.setText(add5);
-                String add6 = rs.getString("prod_qtity");
-                jTextFieldQtity.setText(add6);
-                String add7 = rs.getString("sup-id");
-                jTextSupplier.setText(add7);
-
-            }
-
-        } catch (SQLException | HeadlessException ex) {
-            JOptionPane.showMessageDialog(null, ex);
-        }
-//        find_product();
+//        try {
+//            
+//            String sql = "SELECT pid, prod_name FROM product where pid=?, prod_name=?";
+//
+//            ps = con.prepareStatement(sql);
+//
+//            ps.setString(1, jTextFieldSearch.getText());
+//
+//            rs = ps.executeQuery();
+//
+//            if (rs.next()) {
+//                String add1 = rs.getString("pid");
+//                jTextFieldCode.setText(add1);
+//                String add2 = rs.getString("prod_name");
+//                jTextProduct.setText(add2);
+//                String add3 = rs.getString("prod_price_gross");
+//                jTextFieldGross.setText(add3);
+//                String add4 = rs.getString("prod_price_shop");
+//                jTextFieldShop.setText(add4);
+//                String add5 = rs.getString("delivery_date");
+//                dateChooser.setText(add5);
+//                String add6 = rs.getString("prod_qtity");
+//                jTextFieldQtity.setText(add6);
+//                String add7 = rs.getString("sup-id");
+//                jTextSupplier.setText(add7);
+//
+//            }
+//
+//        } catch (SQLException | HeadlessException ex) {
+//            JOptionPane.showMessageDialog(null, ex);
+//        }
+////        find_product();
 
 
     }//GEN-LAST:event_jTextFieldSearchKeyReleased
@@ -564,10 +591,10 @@ public class ProductGUI extends javax.swing.JFrame {
 
     private void jButtonUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUploadActionPerformed
         try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+            
             int row = jTableProduct.getSelectedRow(); // to get selected row
             String tbclick = (jTableProduct.getModel().getValueAt(row, 0).toString()); // to get jTable1 model
-            String sql = "UPDATE product SET  prod_name=?, prod_price_gross=?, prod_price_shop=?, delivery_date=?, prod_qtity=?, sup_id=? WHERE prod_code=" + tbclick + "";
+            String sql = "UPDATE product SET  prod_name=?, prod_price_gross=?, prod_price_shop=?, delivery_date=?, prod_qtity=? WHERE pid=" + tbclick + "";
             ps = con.prepareStatement(sql);
 
             ps.setString(1, jTextProduct.getText());
@@ -599,8 +626,8 @@ public class ProductGUI extends javax.swing.JFrame {
 
     private void jButtonDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteActionPerformed
         try {
-            String sql = "DELETE FROM product WHERE prod_code=?";
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emers_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow", "root", "");
+            String sql = "DELETE FROM product WHERE pid=?";
+           
             ps = con.prepareStatement(sql);
             ps.setString(1, jTextFieldCode.getText());
             ps.executeUpdate();

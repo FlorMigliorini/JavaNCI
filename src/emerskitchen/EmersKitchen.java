@@ -1,7 +1,14 @@
+
 package emerskitchen;
+
+import emerskitchen.Connection.ConnectionData;
+import java.sql.SQLException;
+
 public class EmersKitchen {
-    public static void main(String[] args) {
-        // TODO code application logic here
+    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+        ConnectionData connection = new ConnectionData();
+        connection.getConnection();
+        
     }
     
 }
